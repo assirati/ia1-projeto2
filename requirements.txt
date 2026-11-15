@@ -1,0 +1,7 @@
+# A engine usa numpy (a rede neural é escrita em numpy). minha_serie.py
+# e o verificador também precisam dele. Python 3.10+.
+numpy>=1.24
+#
+# Para análise e gráficos (não pode ser usado em submissao/previsor.py):
+pandas>=2.0
+matplotlib>=3.7

@@ -24,14 +24,15 @@ inicializacao  xavier | he | normal | zeros
 escala_init    desvio padrão dos pesos quando inicializacao="normal"
 normalizar_x   padroniza as entradas com as estatísticas do treino
 normalizar_y   padroniza a demanda; a previsão volta para unidades
-paciencia      parada antecipada: para depois de `paciencia` épocas sem
-               melhorar a perda de validação e volta aos melhores pesos.
-               Sem X_val, usa os últimos 15% do treino como validação.
 tarefa         regressao (saída identidade) | classificacao (saída sigmoide)
 seed           semente da inicialização e da ordem dos minilotes
 
 Instrumentação (rede.historico), uma entrada por época:
-    perda_treino, perda_val   perda média, sem o termo l2
+    perda_treino, perda_val   perda média, sem o termo l2. perda_val só
+                              existe se treinar() receber X_val e y_val
+    divergiu                  True se a perda virou nan ou infinito
+
+Diagnósticos extras, não obrigatórios no projeto:
     norma_grad[c]             norma do gradiente dos pesos da camada c,
                               calculado no treino inteiro ao fim da época.
                               c = 0 é a primeira camada (junto da entrada)
@@ -40,7 +41,6 @@ Instrumentação (rede.historico), uma entrada por época:
     saturacao[c]              fração dos pares (exemplo, neurônio) da
                               camada oculta c em que a derivada da ativação
                               está abaixo de 5% do seu máximo
-    divergiu                  True se a perda virou nan ou infinito
 
 checar_gradiente(rede, X, y) compara o gradiente do backpropagation com
 uma diferença finita, camada a camada.
@@ -104,7 +104,7 @@ class MLP:
                  quantil=0.5, delta=1.0, otimizador="adam", taxa=0.01,
                  epocas=200, lote=32, l2=0.0, inicializacao="he",
                  escala_init=1.0, normalizar_x=True, normalizar_y=True,
-                 paciencia=None, tarefa="regressao", seed=0):
+                 tarefa="regressao", seed=0):
         if ativacao not in ATIVACOES:
             raise ValueError(f"ativacao deve ser uma de {sorted(ATIVACOES)}")
         if tarefa not in ("regressao", "classificacao"):
@@ -132,7 +132,6 @@ class MLP:
         self.escala_init = escala_init
         self.normalizar_x = normalizar_x
         self.normalizar_y = normalizar_y and tarefa == "regressao"
-        self.paciencia = paciencia
         self.tarefa = tarefa
         self.seed = seed
         self.W = None
@@ -287,10 +286,6 @@ class MLP:
     def _treinar(self, X, y, X_val, y_val):
         X = np.asarray(X, dtype=float)
         y = np.asarray(y, dtype=float)
-        if self.paciencia and X_val is None:
-            corte = int(len(y) * 0.85)
-            X, X_val = X[:corte], X[corte:]
-            y, y_val = y[:corte], y[corte:]
         self.preparar(X, y)
         Xn = self._x(X)
         yn = self._y(y) if self.tarefa == "regressao" else y
@@ -300,10 +295,8 @@ class MLP:
             yv = self._y(y_val) if self.tarefa == "regressao" else np.asarray(y_val, float)
 
         H = self.historico = dict(perda_treino=[], perda_val=[], norma_grad=[],
-                                  mortas=[], saturacao=[], divergiu=False,
-                                  melhor_epoca=None)
+                                  mortas=[], saturacao=[], divergiu=False)
         n = len(yn)
-        melhor, sem_melhora, melhores = np.inf, 0, None
         for ep in range(self.epocas):
             ordem = self.rng.permutation(n)
             for i in range(0, n, self.lote):
@@ -328,17 +321,6 @@ class MLP:
                 vval = self._gradientes(Xv, yv)[0]
                 self.l2 = l2
                 H["perda_val"].append(vval)
-                if self.paciencia:
-                    if vval < melhor - 1e-9:
-                        melhor, sem_melhora = vval, 0
-                        melhores = ([w.copy() for w in self.W], [b.copy() for b in self.b])
-                        H["melhor_epoca"] = ep
-                    else:
-                        sem_melhora += 1
-                        if sem_melhora >= self.paciencia:
-                            break
-        if self.paciencia and melhores is not None:
-            self.W, self.b = melhores
         return self
 
     # -------------------------------------------------------------- previsão

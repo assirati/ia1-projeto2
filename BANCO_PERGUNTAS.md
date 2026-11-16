@@ -1,10 +1,11 @@
-# Banco Público de Perguntas — Arguição
+# Banco Público de Questões — Questionário Individual
 
-Vinte e seis perguntas. **Duas serão sorteadas** para cada aluno no dia.
-A terceira será improvisada a partir do seu pôster e não está aqui. Estudem.
+Vinte e quatro questões. No dia 01/12, durante a aula, o Canvas sorteia
+**três** delas para cada aluno, que responde por escrito, sozinho. Estudem
+todas.
 
-Várias perguntas pedem que vocês olhem para os **seus** números. Tenham o
-pôster e o notebook à mão.
+Várias questões pedem que vocês olhem para os **seus** números. Tenham o
+pôster e os dados do grupo à mão.
 
 ---
 
@@ -58,30 +59,24 @@ termo.
 fica grande mesmo com o backpropagation correto? Construa um exemplo com
 ReLU ou com perda MAE.
 
-**2.4** Com 4 camadas de sigmoide, a norma do gradiente da primeira camada
-ficou muito menor que a da última. Explique o mecanismo, com um limite
-numérico para o fator que cada camada multiplica.
+**2.4** A perda MSE e a perda MAE levam a previsões diferentes para a
+mesma série. O que cada uma estima (média, mediana, outro quantil)? Qual
+combina com o MSE usado para medir o erro, e qual combina com o custo do
+estoque?
 
-**2.5** O que é uma ReLU morta? Em que condições de treino vocês viram
-neurônios mortos, e por que um neurônio morto não volta a aprender?
-
-**2.6** A perda MSE e a perda MAE levam a previsões diferentes para a
-mesma série. O que cada uma estima (média, mediana, outro quantil), e
-qual combina com a métrica WAPE?
-
-**2.7** O gradiente da perda pinball no quantil 0,8 não é simétrico.
+**2.5** O gradiente da perda pinball no quantil 0,8 não é simétrico.
 Escreva o gradiente e explique por que a rede treinada com essa perda
 passa a prever acima da média.
 
-**2.8** Com SGD e taxa de aprendizado alta, a rede divergiu. Descreva o
+**2.6** Com SGD e taxa de aprendizado alta, a rede divergiu. Descreva o
 que acontece com os pesos passo a passo, e por que normalizar a demanda
 muda a taxa a partir da qual isso ocorre.
 
-**2.9** O perceptron não parou de errar na doca extra, mesmo depois de 50
+**2.7** O perceptron não parou de errar na doca extra, mesmo depois de 50
 épocas. O que isso diz sobre os dados? O que a regressão logística faz
 de diferente para chegar a uma resposta estável?
 
-**2.10** Com `inicializacao="zeros"`, a rede termina o treino prevendo o
+**2.8** Com `inicializacao="zeros"`, a rede termina o treino prevendo o
 mesmo valor para todos os dias. Que valor é esse, e por que os pesos
 nunca saem do zero? Use a regra da cadeia.
 
@@ -99,16 +94,16 @@ modelo, o que é acaso das sementes. Como vocês distinguiriam uma da outra?
 **3.3** Escolha uma submissão de outro grupo que superou a sua. O que ela
 captura que a sua não captura? Aponte a feature ou a configuração.
 
-**3.4** O placar de Computação ordena por WAPE e o de Produção por custo
-de estoque. Uma submissão pode ficar bem num e mal no outro? Dê o
-mecanismo e, se houver, o exemplo da tabela.
+**3.4** O placar de Computação ordena pelo RMSE relativo e o de Produção
+pelo custo do estoque. Uma submissão pode ficar bem num e mal no outro?
+Dê o mecanismo e, se houver, o exemplo da tabela.
 
 ---
 
 ## Transversais
 
-**T.1** Aponte, no seu pôster, o resultado que mais contrariou sua
-predição. O que você faria diferente com mais uma semana?
+**T.1** Aponte, no seu pôster, o resultado que mais contrariou o que o
+grupo esperava. O que você faria diferente com mais uma semana?
 
 **T.2** Descreva o erro de IA generativa que vocês documentaram no anexo.
 Como foi detectado, e o que teria acontecido se não fosse?
@@ -116,6 +111,6 @@ Como foi detectado, e o que teria acontecido se não fosse?
 **T.3** Uma afirmação do seu pôster que os dados brutos sustentam menos do
 que parece. Qual é, e o que faltaria medir?
 
-**T.4** Treinar a mesma rede com sementes diferentes deu WAPEs
-diferentes. Quanto variou nos seus dados, e quantas sementes seriam
-necessárias para afirmar que uma configuração é melhor que outra?
+**T.4** Treinar a mesma rede com sementes diferentes deu erros
+diferentes. Quanto o MSE variou nos seus dados, e quantas sementes
+seriam necessárias para afirmar que uma configuração é melhor que outra?

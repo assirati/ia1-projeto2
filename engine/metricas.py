@@ -2,13 +2,13 @@
 Métricas de avaliação.
 
 Regressão (previsão de demanda)
-    mae    erro absoluto médio, em unidades
-    rmse   raiz do erro quadrático médio, em unidades
-    wape   soma dos erros absolutos / soma da demanda, em %. É o MAE
-           dividido pela demanda média, e por isso dá para comparar séries
-           de volumes diferentes. Ordena o placar de Computação.
-    vies   soma(previsão - demanda) / soma da demanda, em %. Positivo =
-           a previsão fica acima da demanda.
+    mse        erro quadrático médio, em unidades²
+    rmse       raiz do MSE, de volta em unidades de demanda
+    rmse_rel   RMSE dividido pela demanda média do período, em %. Dá para
+               comparar séries de volumes diferentes. Ordena o placar de
+               Computação.
+    vies       soma(previsão - demanda) / soma da demanda, em %. Positivo =
+               a previsão fica acima da demanda.
 
 Estoque (Produção)
     custo_estoque   estoca q unidades para um dia de demanda d:
@@ -32,17 +32,16 @@ def _arr(a):
     return np.asarray(a, dtype=float)
 
 
-def mae(y, p):
-    return float(np.mean(np.abs(_arr(p) - _arr(y))))
+def mse(y, p):
+    return float(np.mean((_arr(p) - _arr(y)) ** 2))
 
 
 def rmse(y, p):
-    return float(np.sqrt(np.mean((_arr(p) - _arr(y)) ** 2)))
+    return float(np.sqrt(mse(y, p)))
 
 
-def wape(y, p):
-    y, p = _arr(y), _arr(p)
-    return float(100 * np.sum(np.abs(p - y)) / np.sum(y))
+def rmse_rel(y, p):
+    return float(100 * rmse(y, p) / np.mean(_arr(y)))
 
 
 def vies(y, p):
@@ -51,7 +50,8 @@ def vies(y, p):
 
 
 def regressao(y, p):
-    return dict(mae=mae(y, p), rmse=rmse(y, p), wape=wape(y, p), vies=vies(y, p))
+    return dict(mse=mse(y, p), rmse=rmse(y, p), rmse_rel=rmse_rel(y, p),
+                vies=vies(y, p))
 
 
 def custo_estoque(y, q, falta=CUSTO_FALTA, sobra=CUSTO_SOBRA):

@@ -23,7 +23,7 @@ CUSTO_DOCA_FALTA = 1500.0
 # para os dois cursos.
 PERFIL = {
     "producao": dict(metrica="custo_100"),
-    "computacao": dict(metrica="wape"),
+    "computacao": dict(metrica="rmse_rel"),
 }
 
 # Quantas séries do pool o placar usa

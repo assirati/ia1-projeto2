@@ -1,7 +1,7 @@
 # Projeto 2 (P2) — Inteligência Artificial 1
 
 **Valor:** 10 pontos  
-**Grupos:** 3 ou 4 alunos  
+**Grupos:** os mesmos do Projeto 1  
 **Apresentação do projeto:** 17/11/2026  
 **Sessão de pôsteres:** 01/12/2026
 
@@ -14,13 +14,14 @@ ser feito com a ajuda de IA. Os modelos e a rede neural já estão prontos
 no repositório base, com o backpropagation escrito à mão e comentado, e
 vocês podem usá-los.
 
-O que vale nota é projetar uma medição, prever o resultado antes de
-obtê-lo, explicar por que a previsão errou e defender tudo isso oralmente
-diante de quem produziu números diferentes dos seus.
+O que vale nota é projetar medições, explicar os resultados (em
+especial os que contrariam o que vocês esperavam) e mostrar,
+individualmente, que entendem o que o grupo fez.
 
-Cada grupo recebe **uma série de demanda própria**, escolhida pela
-matrícula do integrante mais velho. Os números que vocês vão obter não
-existem em nenhum outro lugar.
+Os grupos são os mesmos do Projeto 1. Cada grupo recebe **uma série de
+demanda própria**, escolhida pela mesma matrícula usada no P1 (a do
+integrante mais velho). Os números que vocês vão obter não existem em
+nenhum outro lugar.
 
 ```
 python minha_serie.py <matricula> <producao|computacao>
@@ -153,15 +154,16 @@ treino e medindo na validação:
 
 | Modelo                                       | Tarefa        | Registrar                          |
 | -------------------------------------------- | ------------- | ---------------------------------- |
-| Ingênuo, ingênuo sazonal, média móvel        | regressão     | WAPE, viés                         |
+| Ingênuo, ingênuo sazonal, média móvel        | regressão     | MSE, viés                          |
 | Regressão linear (com e sem l2)              | regressão     | idem                               |
 | k-NN (k = 1, 5, 25)                          | regressão     | idem                               |
 | "Sempre não"                                 | classificação | acurácia, precisão, revocação, F1  |
 | Regressão logística (limiares 0,5, 0,25, 0,1) | classificação | idem                              |
 
-WAPE é a soma dos erros absolutos dividida pela soma da demanda, em %.
-Viés é a soma de (previsão − demanda) dividida pela soma da demanda, em %.
-As duas estão em `engine/metricas.py`.
+MSE é o erro quadrático médio, em unidades². A raiz dele (RMSE) volta
+para unidades de demanda e é mais fácil de ler. Viés é a soma de
+(previsão − demanda) dividida pela soma da demanda, em %: positivo quer
+dizer que o modelo prevê acima. As três estão em `engine/metricas.py`.
 
 Comparem também uma **validação interna aleatória** com uma **validação
 interna temporal**: separem 20% do treino, sorteados ou do fim do
@@ -198,8 +200,7 @@ from engine.rede import MLP, checar_gradiente
 rede = MLP(camadas=[16], ativacao="relu", perda="mse").treinar(X, y, X_val, y_val)
 rede.prever(X_val)
 rede.historico["perda_treino"], rede.historico["perda_val"]   # por época
-rede.historico["norma_grad"]   # norma do gradiente de cada camada, por época
-rede.historico["mortas"]       # fração de ReLUs mortas por camada, por época
+rede.historico["divergiu"]     # True se a perda virou nan ou infinito
 ```
 
 ### O que vocês fazem
@@ -211,9 +212,8 @@ rede.historico["mortas"]       # fração de ReLUs mortas por camada, por época
 | Taxa de aprendizado (SGD)    | de 0,001 a 1                                           |
 | Profundidade                 | 1 camada oculta contra 4, com sigmoide e com ReLU      |
 
-Registrem, para cada configuração: WAPE, viés, custo do estoque, épocas,
-norma do gradiente da primeira e da última camada e fração de neurônios
-mortos.
+Registrem, para cada configuração: MSE, viés, custo do estoque e as
+curvas de perda de treino e de validação por época.
 
 **Toda configuração roda com pelo menos 3 sementes.** Duas redes iguais
 com sementes diferentes dão resultados diferentes, e essa variação é
@@ -234,15 +234,15 @@ da rede que vocês acham que vão generalizar melhor (seção 5).
 
 **Computação.** Escrevam à mão o gradiente da perda em relação a um peso
 da primeira camada, para a ativação e a perda da submissão de vocês, e
-confiram com `checar_gradiente`. Com 4 camadas de sigmoide, expliquem a
-razão entre as normas do gradiente da primeira e da última camada, com
-um limite numérico para o fator que cada camada multiplica.
+confiram com `checar_gradiente`. Mostrem, nas curvas de perda, em que
+época a rede passa a decorar o treino em vez de generalizar.
 
 **Produção.** A função de perda é uma decisão de negócio. Comparem a rede
 treinada com MSE mais um estoque de segurança e a rede treinada com perda
 pinball no quantil crítico (com falta a R$ 4 e sobra a R$ 1, o quantil é
-4 / (4 + 1) = 0,8). Respondam com número: quanto vale, em reais por mês,
-um ponto a menos de WAPE?
+4 / (4 + 1) = 0,8). Respondam com número: quanto o centro economiza por
+mês com a perda pinball em relação à MSE pura, e quanto dessa economia
+um estoque de segurança simples já recupera?
 
 ---
 
@@ -278,7 +278,6 @@ CONFIG = {
     "otimizador": "adam",
     "taxa": 0.01,
     "epocas": 200,
-    "paciencia": None,     # inteiro = parada antecipada
     # ... as chaves estão comentadas no arquivo
 }
 
@@ -299,15 +298,21 @@ Limites: até 4 camadas ocultas de até 64 neurônios, até 500 épocas, até
 
 ### O que a tabela mostra
 
-Para cada submissão: WAPE (média, mediana e pior série), viés, custo do
-estoque por 100 unidades demandadas (média e mediana), fração da demanda
-atendida, séries com falha e séries censuradas.
+Para cada submissão: RMSE relativo (média, mediana e pior série), viés,
+custo do estoque por 100 unidades demandadas (média e mediana), fração da
+demanda atendida, séries com falha e séries censuradas.
+
+O **RMSE relativo** é a raiz do MSE dividida pela demanda média do
+período, em %. A divisão existe só para comparar séries de volumes
+diferentes: um RMSE de 20 unidades é muito numa série que vende 80 por
+dia e pouco numa que vende 300.
 
 Duas referências entram na tabela: a rede de exemplo do repositório e o
 modelo linear (sem camada oculta) com as mesmas features.
 
 **Como as tabelas são ordenadas.** Primeiro as submissões com menos
-séries com falha ou censura. Depois, em Computação, pelo WAPE médio; em
+séries com falha ou censura. Depois, em Computação, pelo RMSE relativo
+médio; em
 Produção, pelo custo médio do estoque. As duas colunas aparecem nos dois
 cursos. A média é usada de propósito, porque penaliza o desempenho
 catastrófico em poucas séries, e uma previsão que erra feio às vezes é um
@@ -337,46 +342,20 @@ OBS: Nenhum prazo é flexível.
 
 | Data                 | Evento                                                                    |
 | -------------------- | ------------------------------------------------------------------------- |
-| **Ter 17/11**        | Apresentação. Grupos formados, séries distribuídas, repositório publicado |
-| **Qui 19/11, 23h59** | Pré-registro de hipóteses (formulário no Drive, entrega no Canvas)        |
-| 20 a 23/11           | Experimentação                                                            |
+| **Ter 17/11**        | Apresentação. Séries distribuídas, repositório publicado                  |
+| 17 a 23/11           | Experimentação                                                            |
 | **Ter 24/11, 23h59** | Submissão ao placar (Canvas)                                              |
 | Qua 25/11            | Placar rodado. Tabelas e resultados por série publicados (Canvas)         |
 | 26 a 29/11           | Análise cruzada, relatório e pôster                                       |
 | **Dom 29/11, 23h59** | Pacote reprodutível, relatório e pôster (Canvas)                          |
-| **Ter 01/12**        | Pôsteres, replicação ao vivo e arguição                                   |
+| **Ter 01/12**        | Pôsteres e questionário individual no Canvas                              |
 
 Perdeu 24/11, não há placar para o seu grupo. Não há segunda chance,
 porque é uma execução coletiva única.
 
 ---
 
-## 7. Pré-registro (19/11)
-
-Antes de rodar qualquer experimento, o grupo entrega predições numéricas.
-
-**A nota não vem do acerto na predição.** Vem da qualidade da análise
-quando a predição erra.
-
-Isso é literal. Predição corajosa e errada, bem explicada depois, vale
-mais que predição vaga e segura. Escrever "esperamos que a rede erre
-menos que o ingênuo" recebe nota baixa mesmo estando certo, porque não
-arriscou nada e não produziu material de análise.
-
-Predições exigem número. "Entre 2 e 4 pontos de WAPE a menos" é
-predição. "Erro menor" não é.
-
-Antes do pré-registro vocês podem abrir o CSV e rodar `minha_serie.py`,
-que só descreve os dados. Não treinem modelo nenhum.
-
-O [formulário do pré-registro](https://docs.google.com/document/d/PREENCHER_PRE_REGISTRO_P2/copy)
-está no Google Drive (o link também está no Canvas). Façam uma cópia,
-preencham e enviem na tarefa do pré-registro no Canvas.
-Entregas depois de 19/11 não serão aceitas.
-
----
-
-## 8. Pacote reprodutível (29/11)
+## 7. Pacote reprodutível (29/11)
 
 - código-fonte
 - dados brutos de todas as execuções, uma linha por semente, sem
@@ -385,12 +364,13 @@ Entregas depois de 19/11 não serão aceitas.
   do relatório
 - `README.md` com o comando exato
 
-No dia 01/12 um colega de outro grupo vai rodar esse script na frente de
-vocês.
+O professor vai rodar esse script. Se ele não rodar com um comando, ou se
+os números não baterem com o pôster e o relatório, o pacote perde nota
+(ver a [rubrica](RUBRICA.md)).
 
 ---
 
-## 9. Relatório (29/11)
+## 8. Relatório (29/11)
 
 No máximo três páginas, em PDF, entregue junto com o pacote. O conteúdo
 muda com o curso.
@@ -410,7 +390,7 @@ Repitam com ao menos três razões entre custo de falta e custo de sobra
 
 ---
 
-## 10. Política de uso de IA generativa
+## 9. Política de uso de IA generativa
 
 **Não há proibição para uso de IA Generativa.**
 
@@ -433,57 +413,38 @@ nada. Isso é nota baixa, não isenção.
 
 ---
 
-## 11. Aula de 01/12
+## 10. Aula de 01/12
 
-**20 minutos.** Visitação virtual dos pôsteres, circulação livre.
-
-**20 minutos.** Replicação ao vivo. Cada grupo recebe, sorteado na hora, o
-pacote de outro grupo e um notebook. Rodam o script e conferem se os
-números batem com o pôster do vizinho. Preenchem uma cópia da
-[ficha de replicação](https://docs.google.com/document/d/PREENCHER_FICHA_P2/copy)
-e a enviam na tarefa da ficha no Canvas, ainda durante a sessão.
-
-Parecer negativo bem fundamentado pontua para quem audita. Parecer
-complacente que deixa passar erro grave penaliza os dois grupos.
-
-**Resto da aula.** Arguição individual, três perguntas por aluno.
-
-Duas perguntas são sorteadas do [banco público](BANCO_PERGUNTAS.md). A terceira é improvisada a
-partir do seu pôster e dos seus dados:
-
-> "Sua submissão ficou em 2º na sua série e em 6º na média do placar. O
-> que isso diz?"
-
-> "Troca a perda para MAE e roda. O que você espera antes de apertar
-> enter?"
-
-Respostas podem ser dadas apontando para o pôster, escrevendo no papel ou
-rodando código na hora. Avalia-se o conteúdo, não a desenvoltura.
+**Primeira parte.** Visitação virtual dos pôsteres, circulação livre.
 
 Pôster digital no formato A1, feito a partir do
 [modelo no Google Drive](https://docs.google.com/presentation/d/PREENCHER_POSTER_P2/copy).
-Quem colocar texto demais não vai conseguir defender.
+Quem colocar texto demais não vai conseguir explicar nada.
+
+**Segunda parte.** Questionário individual no Canvas. O Canvas sorteia,
+para cada aluno, três questões do [banco público](BANCO_PERGUNTAS.md),
+respondidas por escrito durante a aula. Várias questões pedem os números
+do grupo: tenham o pôster e os dados à mão. Avalia-se o conteúdo da
+resposta, não a redação.
 
 ---
 
-## 12. Distribuição dos 10 pontos
+## 11. Distribuição dos 10 pontos
 
 | Componente                                 | Pontos | Tipo       |
 | ------------------------------------------ | ------ | ---------- |
-| Pré-registro de hipóteses                  | 1,5    | grupo      |
 | Submissão válida ao placar                 | 0,5    | grupo      |
-| Pacote reprodutível                        | 1,0    | grupo      |
+| Pacote reprodutível                        | 1,5    | grupo      |
 | Anexo de auditoria de IA                   | 0,5    | grupo      |
-| Relatório (ablação ou custo do estoque)    | 1,0    | grupo      |
-| Pôster e análise                           | 1,5    | grupo      |
-| Ficha de replicação ao vivo                | 0,5    | grupo      |
-| Arguição individual                        | 3,5    | individual |
+| Relatório (ablação ou custo do estoque)    | 1,5    | grupo      |
+| Pôster e análise                           | 2,5    | grupo      |
+| Questionário individual (Canvas)           | 3,5    | individual |
 
-**Multiplicador de arguição.** A nota individual também funciona como
+**Multiplicador do questionário.** A nota individual também funciona como
 multiplicador sobre os 6,5 pontos coletivos, variando de 0,5 a 1,0.
 
 ```
-nota final = (pontos coletivos × multiplicador) + nota da arguição
+nota final = (pontos coletivos × multiplicador) + nota do questionário
 ```
 
 Quem não consegue explicar o próprio trabalho não carrega a nota do grupo.
@@ -493,7 +454,7 @@ estão na [rubrica](RUBRICA.md).
 
 ---
 
-## 13. Ambiente técnico
+## 12. Ambiente técnico
 
 - Python 3.10 ou superior
 - `numpy` é necessário para a engine (está no `requirements.txt`)
@@ -504,7 +465,7 @@ estão na [rubrica](RUBRICA.md).
 
 ---
 
-## 14. Onde gastar o tempo
+## 13. Onde gastar o tempo
 
 O erro mais provável em duas semanas é gastar dez dias trocando features
 e hiperparâmetros e quatro olhando para os resultados. Inverta.

@@ -41,8 +41,9 @@ Depois, vejam a série do grupo:
 python minha_serie.py <matricula> <producao|computacao>
 ```
 
-Use a matrícula do integrante mais velho do grupo. A mesma série vai
-valer para todas as entregas.
+Os grupos são os mesmos do Projeto 1. Usem a mesma matrícula do P1 (a
+do integrante mais velho do grupo). A mesma série vale para todas as
+entregas.
 
 Exemplo:
 
@@ -69,9 +70,6 @@ assim.
 
 O segundo script demora cerca de um minuto, porque treina cada rede com
 três sementes.
-
-**Antes do pré-registro (19/11), não rodem os exemplos.** O pré-registro
-pede predições feitas sem ter treinado nada.
 
 ## Sua submissão ao placar
 
@@ -127,16 +125,16 @@ segunda chamada.
 
 ## Documentos para preencher
 
-O pré-registro, a ficha de replicação e o modelo de pôster ficam no
-Google Drive (os links também estão no Canvas). Cada link abaixo abre a
-opção de fazer uma cópia na conta Google de vocês. Façam a cópia, preencham
-e enviem na tarefa correspondente do Canvas:
+O modelo de pôster fica no Google Drive (o link também está no Canvas).
+O link abaixo abre a opção de fazer uma cópia na conta Google de vocês.
+Façam a cópia, preencham e enviem na tarefa do pôster no Canvas:
 
 | Documento | Quando | Onde enviar |
 |---|---|---|
-| [Pré-registro de hipóteses](https://docs.google.com/document/d/PREENCHER_PRE_REGISTRO_P2/copy) | até **19/11, 23h59**, antes de treinar qualquer modelo | tarefa do pré-registro no Canvas |
 | [Modelo de pôster (A1)](https://docs.google.com/presentation/d/PREENCHER_POSTER_P2/copy) | até **29/11, 23h59**, junto com o pacote e o relatório | tarefa do pôster no Canvas |
-| [Ficha de replicação](https://docs.google.com/document/d/PREENCHER_FICHA_P2/copy) | na sessão de **01/12**, sobre o pacote do grupo auditado | tarefa da ficha no Canvas, ainda durante a sessão |
+
+O questionário individual de 01/12 é feito no próprio Canvas, durante a
+aula, com questões sorteadas do [banco público](BANCO_PERGUNTAS.md).
 
 ---
 
@@ -145,7 +143,7 @@ e enviem na tarefa correspondente do Canvas:
 ```
 ENUNCIADO.md              regras, prazos, pontuação
 RUBRICA.md                critérios de correção de cada componente
-BANCO_PERGUNTAS.md        as 26 perguntas da arguição, públicas
+BANCO_PERGUNTAS.md        as 24 questões do questionário individual
 histograma_calibracao.png distribuição de dificuldade das séries
 
 minha_serie.py            mostra a série do grupo
@@ -162,7 +160,7 @@ engine/
   features.py             funções de features de referência
   modelos.py              referências, regressão linear, k-NN, logística, perceptron
   rede.py                 a rede neural: backpropagation, otimizadores, instrumentação
-  metricas.py             WAPE, viés, custo do estoque, classificação
+  metricas.py             MSE, RMSE, viés, custo do estoque, classificação
   avaliacao.py            as regras do placar (o verificador usa este código)
 ```
 
@@ -203,19 +201,19 @@ p, y, idx = prever_regra(s, sazonal, "validacao")
 ```python
 from engine.rede import MLP, checar_gradiente
 
-rede = MLP(camadas=[16], ativacao="relu", perda="mae", taxa=0.01,
-           epocas=200, paciencia=20, seed=0).treinar(X, y, Xv, yv)
+rede = MLP(camadas=[16], ativacao="relu", perda="mse", taxa=0.01,
+           epocas=200, seed=0).treinar(X, y, Xv, yv)
 rede.prever(Xv)
-rede.historico     # perda_treino, perda_val, norma_grad, mortas, saturacao, divergiu
+rede.historico     # perda_treino, perda_val (por época), divergiu
 checar_gradiente(MLP(camadas=[8]), X[:64], y[:64])
 ```
 
 **Métricas**
 
 ```python
-from engine.metricas import wape, vies, regressao, custo_estoque, classificacao, custo_doca
+from engine.metricas import mse, regressao, custo_estoque, classificacao, custo_doca
 
-regressao(y, p)          # mae, rmse, wape, vies
+regressao(y, p)          # mse, rmse, rmse_rel (RMSE / demanda média, %), vies
 custo_estoque(y, q)      # custo_100, atendimento, dias_com_falta, ...
 classificacao(y, c)      # acuracia, precisao, revocacao, f1, matriz
 custo_doca(y, c)         # custo da decisão de abrir a doca extra
@@ -225,8 +223,9 @@ custo_doca(y, c)         # custo da decisão de abrir a doca extra
 
 **A série de outro grupo é mais fácil que a minha?** \
 As séries foram filtradas para uma banda de dificuldade. A distribuição
-está em `histograma_calibracao.png`. Diferenças de alguns pontos de WAPE
-entre séries são esperadas e não mudam nenhuma conclusão qualitativa.
+está em `histograma_calibracao.png`. Diferenças de erro entre séries são
+esperadas e não mudam nenhuma conclusão qualitativa. Para comparar séries
+de volumes diferentes, usem o RMSE relativo, não o MSE.
 
 **Posso usar outras séries do pool?** \
 Sim. Todas as séries de `series/` estão lá de propósito: o placar mede a
@@ -239,11 +238,11 @@ a rede de `engine/rede.py`, com a sua `CONFIG`. No arquivo
 na seção 5 do enunciado.
 
 **Posso modificar o `engine/`?** \
-Para experimentar, à vontade. Mas o placar e a replicação ao vivo rodam
-com a versão original, então não dependa das suas mudanças.
+Para experimentar, à vontade. Mas o placar e a conferência do pacote
+rodam com a versão original, então não dependam das suas mudanças.
 
 **Posso usar IA generativa?** \
-Sim, sem restrição. Leia a seção 10 do enunciado: o pacote precisa
+Sim, sem restrição. Leia a seção 9 do enunciado: o pacote precisa
 documentar um erro que a IA cometeu e como vocês detectaram.
 
 **Por que a rede dá resultados diferentes a cada semente?** \

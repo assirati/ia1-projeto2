@@ -104,15 +104,16 @@ def main():
             print(AVISO + f"{rot}: passou de {LIMITES['limite_s']} s "
                           f"({r['ms'] / 1000:.0f} s). Será censurada no placar.")
             continue
-        print(OK + f"{rot}: WAPE {r['wape']:.1f}%, viés {r['vies']:+.1f}%, "
+        print(OK + f"{rot}: MSE {r['mse']:.0f}, RMSE relativo {r['rmse_rel']:.1f}%, "
+                   f"viés {r['vies']:+.1f}%, "
                    f"custo {r['custo_100']:.1f} por 100 un., "
                    f"{r['n_features']} features, {r['ms'] / 1000:.1f} s")
         if r["ms"] > 500 * LIMITES["limite_s"]:
             print(AVISO + f"{rot}: usou mais da metade do limite de "
                           f"{LIMITES['limite_s']} s. A máquina do placar pode ser mais lenta")
-        ws = r["wape_por_semente"]
-        if max(ws) - min(ws) > 2:
-            print(AVISO + f"{rot}: o WAPE varia de {min(ws):.1f}% a {max(ws):.1f}% "
+        ws = r["rmse_rel_por_semente"]
+        if max(ws) - min(ws) > 5:
+            print(AVISO + f"{rot}: o RMSE relativo varia de {min(ws):.1f}% a {max(ws):.1f}% "
                           f"entre as sementes. Vocês sabem explicar por quê?")
 
     print()

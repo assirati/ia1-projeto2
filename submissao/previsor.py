@@ -31,7 +31,6 @@ CONFIG = {
     "l2": 0.0,
     "inicializacao": "he",  # xavier | he | normal | zeros
     "normalizar": True,
-    "paciencia": None,      # inteiro = parada antecipada
 }
 
 

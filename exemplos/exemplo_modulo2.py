@@ -28,9 +28,9 @@ from engine.rede import MLP, checar_gradiente
 
 SEMENTES = (0, 1, 2)
 CAMPOS = ["experimento", "camadas", "ativacao", "perda", "quantil", "taxa",
-          "semente", "wape", "vies", "custo_100", "atendimento", "acuracia",
-          "revocacao", "epocas_usadas", "perda_treino_final", "perda_val_final",
-          "grad_primeira", "grad_ultima", "mortas", "divergiu", "ms"]
+          "semente", "mse", "rmse", "vies", "custo_100", "atendimento",
+          "acuracia", "revocacao", "epocas", "perda_treino_final",
+          "perda_val_final", "divergiu", "ms"]
 
 
 def main():
@@ -60,22 +60,20 @@ def main():
                 experimento=experimento, camadas=str(kw.get("camadas", [16])),
                 ativacao=kw.get("ativacao", "relu"), perda=kw.get("perda", "mse"),
                 quantil=kw.get("quantil", ""), taxa=kw.get("taxa", 0.01),
-                semente=sem, wape=round(m.get("wape", float("nan")), 3),
+                semente=sem, mse=round(m.get("mse", float("nan")), 3),
+                rmse=round(m.get("rmse", float("nan")), 3),
                 vies=round(m.get("vies", float("nan")), 3),
                 custo_100=round(c.get("custo_100", float("nan")), 3),
                 atendimento=round(c.get("atendimento", float("nan")), 3),
-                epocas_usadas=len(H["perda_treino"]),
+                epocas=len(H["perda_treino"]),
                 perda_treino_final=round(H["perda_treino"][-1], 5),
                 perda_val_final=round(H["perda_val"][-1], 5) if H["perda_val"] else "",
-                grad_primeira=round(H["norma_grad"][0][0], 6),
-                grad_ultima=round(H["norma_grad"][0][-1], 6),
-                mortas=round(sum(H["mortas"][-1]) / max(1, len(H["mortas"][-1])), 3),
                 divergiu=H["divergiu"], ms=round(ms)))
             curvas[f"{experimento}|{kw}|{sem}"] = {
-                k: H[k] for k in ("perda_treino", "perda_val", "norma_grad", "mortas")}
+                k: H[k] for k in ("perda_treino", "perda_val")}
             if sem == SEMENTES[0]:
                 desc = ", ".join(f"{k}={v}" for k, v in kw.items())
-                txt = (f"WAPE {m['wape']:5.1f}%  custo {c['custo_100']:6.1f}"
+                txt = (f"MSE {m['mse']:8.0f}  custo {c['custo_100']:6.1f}"
                        if ok else "DIVERGIU")
                 print(f"  {experimento:<14}{desc[:62]:<64}{txt}")
 

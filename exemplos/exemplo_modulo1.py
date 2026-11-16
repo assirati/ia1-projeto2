@@ -27,8 +27,8 @@ from engine.metricas import classificacao, custo_doca, regressao
 from engine.modelos import (KNN, RegressaoLinear, RegressaoLogistica, ingenuo,
                             media_movel, prever_regra, sazonal)
 
-CAMPOS = ["tarefa", "modelo", "parametro", "features", "divisao", "wape", "mae",
-          "rmse", "vies", "acuracia", "precisao", "revocacao", "f1",
+CAMPOS = ["tarefa", "modelo", "parametro", "features", "divisao", "mse", "rmse",
+          "rmse_rel", "vies", "acuracia", "precisao", "revocacao", "f1",
           "custo_doca_mes", "ms"]
 
 
@@ -48,7 +48,7 @@ def main():
                            features=feats, divisao=divisao, ms=round(ms, 1),
                            **{k: round(v, 3) for k, v in m.items()}))
         print(f"  {modelo:<18}{parametro:<10}{divisao:<12}"
-              f"WAPE {m['wape']:5.1f}%  viés {m['vies']:+6.1f}%")
+              f"MSE {m['mse']:8.0f}  RMSE {m['rmse']:6.1f}  viés {m['vies']:+6.1f}%")
 
     print("Previsão de demanda (validação)")
     for nome, regra in [("ingenuo", ingenuo), ("sazonal", sazonal),

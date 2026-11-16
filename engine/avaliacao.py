@@ -51,7 +51,7 @@ PREFIXOS_PROIBIDOS = ("_", "f_", "gi_", "cr_", "ag_", "tb_", "co_")
 CONFIG_PADRAO = dict(
     camadas=[16], ativacao="relu", perda="mse", quantil=0.5, delta=1.0,
     otimizador="adam", taxa=0.01, epocas=200, lote=32, l2=0.0,
-    inicializacao="he", normalizar=True, paciencia=None,
+    inicializacao="he", normalizar=True,
 )
 
 # Sementes de inicialização da rede. Cada série é treinada uma vez por
@@ -154,8 +154,6 @@ def validar_config(cfg):
         problemas.append("inicializacao deve ser xavier, he, normal ou zeros")
     if not isinstance(c["normalizar"], bool):
         problemas.append("normalizar deve ser True ou False")
-    if c["paciencia"] is not None and (not inteiro(c["paciencia"]) or c["paciencia"] < 1):
-        problemas.append("paciencia deve ser None ou um inteiro >= 1")
     return c, problemas
 
 
@@ -164,7 +162,7 @@ def rede_da_config(c, seed):
                quantil=c["quantil"], delta=c["delta"], otimizador=c["otimizador"],
                taxa=c["taxa"], epocas=c["epocas"], lote=c["lote"], l2=c["l2"],
                inicializacao=c["inicializacao"], normalizar_x=c["normalizar"],
-               normalizar_y=c["normalizar"], paciencia=c["paciencia"], seed=seed)
+               normalizar_y=c["normalizar"], seed=seed)
 
 
 # --------------------------------------------------------------- avaliação
@@ -249,11 +247,11 @@ def avaliar(mod, config, serie, partes_treino, parte_alvo, sementes=SEMENTES,
                        ms=round(1000 * (time.perf_counter() - t0)))
             return reg
 
-    chaves = ("wape", "mae", "rmse", "vies", "custo_100", "atendimento",
+    chaves = ("mse", "rmse", "rmse_rel", "vies", "custo_100", "atendimento",
               "dias_com_falta", "epocas_usadas")
     for k in chaves:
         reg[k] = round(float(np.mean([m[k] for m in por_semente])), 3)
-    reg["wape_por_semente"] = [round(m["wape"], 3) for m in por_semente]
+    reg["rmse_rel_por_semente"] = [round(m["rmse_rel"], 3) for m in por_semente]
     reg["status"] = "ok"
     reg["ms"] = round(1000 * (time.perf_counter() - t0))
     return reg

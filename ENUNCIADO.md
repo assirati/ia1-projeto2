@@ -418,7 +418,7 @@ nada. Isso é nota baixa, não isenção.
 **Primeira parte.** Visitação virtual dos pôsteres, circulação livre.
 
 Pôster digital no formato A1, feito a partir do
-[modelo no Google Drive](https://docs.google.com/presentation/d/PREENCHER_POSTER_P2/copy).
+[modelo no Google Drive](https://docs.google.com/presentation/d/1M9LdyMc0VCf2wHs57rbcaywk1BjIJCFE/copy).
 Quem colocar texto demais não vai conseguir explicar nada.
 
 **Segunda parte.** Questionário individual no Canvas. O Canvas sorteia,

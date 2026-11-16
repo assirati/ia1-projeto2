@@ -131,7 +131,7 @@ Façam a cópia, preencham e enviem na tarefa do pôster no Canvas:
 
 | Documento | Quando | Onde enviar |
 |---|---|---|
-| [Modelo de pôster (A1)](https://docs.google.com/presentation/d/PREENCHER_POSTER_P2/copy) | até **29/11, 23h59**, junto com o pacote e o relatório | tarefa do pôster no Canvas |
+| [Modelo de pôster (A1)](https://docs.google.com/presentation/d/1M9LdyMc0VCf2wHs57rbcaywk1BjIJCFE/copy) | até **29/11, 23h59**, junto com o pacote e o relatório | tarefa do pôster no Canvas |
 
 O questionário individual de 01/12 é feito no próprio Canvas, durante a
 aula, com questões sorteadas do [banco público](BANCO_PERGUNTAS.md).
